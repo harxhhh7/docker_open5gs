@@ -25,6 +25,8 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 FROM ubuntu:jammy
+ARG KAMAILIO_REPO=https://github.com/harxhhh7/kamailio.git
+ARG KAMAILIO_REF=feature/mcx-ims
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -36,10 +38,13 @@ RUN apt-get update && \
 					libsctp-dev libradcli-dev libradcli4 libjson-c-dev pkg-config iproute2 net-tools \
 					iputils-ping libgcrypt20-dev libjansson-dev libevent-dev libnghttp2-dev uuid-dev
 
-# Fetch Kamailio code
-RUN mkdir -p /usr/local/src/ && cd /usr/local/src/ && \
-	git clone https://github.com/kamailio/kamailio && \
-	cd kamailio && git checkout 9874599e41fa69cc3807676a7995a135a350a9ba
+# Fetch custom Kamailio code
+RUN mkdir -p /usr/local/src/ && \
+    cd /usr/local/src/ && \
+    git clone ${KAMAILIO_REPO} kamailio && \
+    cd kamailio && \
+    git fetch origin ${KAMAILIO_REF} && \
+    git checkout --detach FETCH_HEAD
 
 # Build and Install Kamailio
 RUN cd /usr/local/src/kamailio && make cfg
